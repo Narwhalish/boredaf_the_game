@@ -42,12 +42,13 @@ class Bullet(object):
         }
         self.Bl_position = [self.Bl_position[0] + dist[self.direction][0], self.Bl_position[1] + dist[self.direction][1]]
 
-class Fighter(Bullet):
+class Fighter(object):
     name = "Player"
     hp, att, arm, vit, spd, mvmt = (10, 1, 0, 0, 1, 1)
     position = [0, 0]
 
-    def __init__(self, name, stats, position):
+    def __init__(self, game, name, stats, position):
+        self.game = game
         self.name = name
         self.hp, self.att, self.arm, self.vit, self.spd, self.mvmt = stats
         self.position = position
@@ -83,17 +84,22 @@ class Fighter(Bullet):
     def take_dmg(self, dmg):
         self.hp -= (dmg + self.arm)
 
-def start_loop(players):
-    global game
-    game = Arena([15, 10])
+def start_loop(game, players):
     game.mark_player(players[0].position)
     game.mark_player(players[1].position)
     while True:
         for i in range(len(players)):
             old_position = players[i].position
             game.erase(players[i].position)
-            action = raw_input("\nAction: ")
-            players[i].take_turn(action)
+
+            ask_again = True
+            while ask_again:
+                try:
+                    action = raw_input("\nAction: ")
+                    players[i].take_turn(action)
+                    ask_again = False
+                except KeyError:
+                    print "Invalid input"
 
             if game.dimx + players[i].position[1] >= 0 or game.dimy + players[i].position[0] >= 0:
                 try:
@@ -109,7 +115,8 @@ def start_loop(players):
             print '\n'
 
         for i in range(len(game.bullets)):
-            game.erase(game.bullets[i].Bl_position)
+            if game.bullets[i].Bl_position != '0'
+                game.erase(game.bullets[i].Bl_position)
             game.bullets[i].move()
 
             try:
@@ -120,11 +127,11 @@ def start_loop(players):
         for row in game.arena:
                 print row
 
-
-a = Fighter('Kylui', [999, 999 ,999 ,999, 999, 5], [0, 0])
-b = Fighter('Justang', [6969, 69, 69, 69, 69, 5], [14, 9])
+game = Arena([15, 10])
+a = Fighter(game, 'P1', [10, 1 ,0 ,1, 5, 1], [0, 0])
+b = Fighter(game, 'P2', [10, 1, 0, 1, 5, 1], [14, 9])
 
 players = [a, b]
 
 if __name__ == '__main__':
-    start_loop(players)
+    start_loop(game, players)

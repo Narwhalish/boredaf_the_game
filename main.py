@@ -20,6 +20,7 @@ class Arena(object):
 
     def erase(self, position):
         self.arena[position[1]][position[0]] = 'X'
+        print position
 
 class Bullet(object):
     direction = 'n'
@@ -52,11 +53,12 @@ class Fighter(Bullet):
         self.position = position
 
     def take_turn(self, action):
-        a = {'Attack': self.attack, 'Move': self.move}
+        action = action.lower()
+        a = {'attack': self.attack, 'move': self.move}
         a[action]()
 
     def attack(self):
-        direction = raw_input('Direction: ')
+        direction = raw_input('Direction: ').lower()
         game.bullets.append(Bullet(direction, 2, self.position))
 
     def move(self):
@@ -88,13 +90,20 @@ def start_loop(players):
     game.mark_player(players[1].position)
     while True:
         for i in range(len(players)):
+            old_position = players[i].position
             game.erase(players[i].position)
             action = raw_input("\nAction: ")
             players[i].take_turn(action)
 
-            try:
-                game.mark_player(players[i].position)
-            except IndexError:
+            if game.dimx + players[i].position[1] >= 0 or game.dimy + players[i].position[0] >= 0:
+                try:
+                    game.mark_player(players[i].position)
+                    print players[i].name + ' marked at ' + str(players[i].position)
+                except IndexError:
+                    game.mark_player(old_position)
+                    print "Invalid, cannot move out of arena"
+            else:
+                game.mark_player(old_position)
                 print "Invalid, cannot move out of arena"
 
             print '\n'
